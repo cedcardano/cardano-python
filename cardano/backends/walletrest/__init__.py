@@ -4,6 +4,8 @@ import logging
 import operator
 import requests
 import urllib
+from io import BytesIO
+import base64
 
 from ... import exceptions as main_exceptions
 from ...metadata import Metadata
