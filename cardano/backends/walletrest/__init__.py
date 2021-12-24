@@ -98,6 +98,49 @@ class WalletREST(object):
             )
         return result
 
+######################OCTET
+    def octet_request(self, method, path, bufferblob):
+        url = "".join([self.base_url, path])
+        hdr = {"Content-Type": "application/octet-stream"}
+
+        rsp = getattr(requests, method.lower())(
+            url, headers=hdr, data=bufferblob, timeout=self.timeout
+        )
+        if rsp.status_code != 204:  # if content exists
+            result = rsp.json(parse_float=Decimal)
+            _ppresult = json.dumps(
+                rsp.json(), cls=JSONWithDecimalEncoder, indent=2, sort_keys=True
+            )
+            _log.debug(u"Result:\n{result}".format(result=_ppresult))
+        else:
+            result = None
+            _log.debug(u"No result (HTTP 204)")
+        if rsp.status_code == 400:
+            raise exceptions.BadRequest(result["message"], result=result)
+        if rsp.status_code == 403:
+            try:
+                raise self.ERR2EXCEPTION[rsp.status_code][result["code"]](
+                    result["message"]
+                )
+            except KeyError:
+                pass
+            raise exceptions.RESTServerError(result.get("message", "* NO MESSAGE *"))
+        if rsp.status_code == 404:
+            raise exceptions.NotFound(result["message"], result=result)
+        if rsp.status_code == 500:
+            try:
+                raise self.ERR2EXCEPTION[rsp.status_code][result["code"]](
+                    result["message"], result=result
+                )
+            except KeyError:
+                pass
+            raise exceptions.RESTServerError(
+                result.get("message", "* NO MESSAGE *"), result=result
+            )
+        return result
+
+    
+    
     def wallet_ids(self):
         return map(operator.itemgetter("id"), self.raw_request("GET", "wallets"))
 
@@ -261,6 +304,72 @@ class WalletREST(object):
         # NOTE: the order of the following two requests is important
         txd = self.raw_request("POST", "wallets/{:s}/transactions".format(wid), data)
         return self._txdata2tx(txd, addresses=self._addresses_set(wid))
+    
+    
+
+####BUILDTX#####
+
+    def construct_tx(self, wid, destinations, metadata, allow_withdrawal):
+        data = {
+            "withdrawal": "self" if allow_withdrawal else None,
+            "payments": [
+                {
+                    "address": str(address),
+                    "amount": serializers.store_amount(amount),
+                    "assets": [
+                        {
+                            "policy_id": asset.policy_id,
+                            "asset_name": asset.asset_name,
+                            "quantity": asset_amount,
+                        }
+                        for (asset, asset_amount) in assets
+                    ],
+                }
+                for (address, amount, assets) in destinations
+            ],
+        }
+        if metadata is not None:
+            if not isinstance(metadata, Metadata):
+                metadata = Metadata(metadata.items())
+            data["metadata"] = metadata.serialize()
+
+        # NOTE: the order of the following two requests is important
+        txd = self.raw_request("POST", "wallets/{:s}/transactions-construct".format(wid), data)
+        #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
+        return txd
+
+    def decode_tx(self, wid, cborstr):
+        data = {
+            "transaction": cborstr
+        }
+
+        # NOTE: the order of the following two requests is important
+        txd = self.raw_request("POST", "wallets/{:s}/transactions-decode".format(wid), data)
+        #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
+        return txd
+
+    def sign_tx(self, wid, txcbor, passphrase):
+        data = {
+            "passphrase": passphrase,
+            "transaction": txcbor
+        }
+
+        # NOTE: the order of the following two requests is important
+        txd = self.raw_request("POST", "wallets/{:s}/transactions-sign".format(wid), data)
+        #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
+        return txd
+
+#def octet_request(self, method, path, bufferblob)
+    def submit_ext_tx(self, b64str):
+
+        bytesstring = base64.b64decode(b64str)
+
+
+        # NOTE: the order of the following two requests is important
+        txd = self.octet_request("POST", "proxy/transactions", bytesstring)
+        #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
+        return txd
+    
 
     def estimate_fee(self, wid, destinations, metadata):
         data = {
