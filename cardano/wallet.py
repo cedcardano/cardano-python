@@ -258,6 +258,30 @@ class Wallet(object):
             b64str
         )
 
+    def construct_and_send_tx(
+        self,
+        address,
+        amount,
+        passphrase,
+        assets=None,
+        metadata=None,
+        allow_withdrawal=True,
+    ):
+
+        unsignedtx = self.backend.construct_tx(
+            self.wid,
+            ((address, amount, assets or []),),
+            metadata,
+            allow_withdrawal,
+        )
+
+        signedtx = self.backend.sign_tx(unsignedtx['transaction'],passphrase)
+
+        return self.backend.submit_ext_tx(
+            signedtx['transaction']
+        )
+
+
     
     
     def estimate_fee(self, destinations, metadata=None):
