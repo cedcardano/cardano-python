@@ -212,7 +212,54 @@ class Wallet(object):
             ttl,
             self._resolve_passphrase(passphrase),
         )
+    
+    
+    def construct_tx(
+        self,
+        address,
+        amount,
+        assets=None,
+        metadata=None,
+        allow_withdrawal=True,
+    ):
 
+        return self.backend.construct_tx(
+            self.wid,
+            ((address, amount, assets or []),),
+            metadata,
+            allow_withdrawal,
+        )
+
+    def decode_tx(
+        self,
+        cborstr
+    ):
+        return self.backend.decode_tx(
+            self.wid,
+            cborstr
+        )
+
+    def sign_tx(
+        self,
+        txcbor,
+        passphrase
+    ):
+        return self.backend.sign_tx(
+            self.wid,
+            txcbor,
+            passphrase
+        )
+
+    def submit_ext_tx(
+        self,
+        b64str
+    ):
+        return self.backend.submit_ext_tx(
+            b64str
+        )
+
+    
+    
     def estimate_fee(self, destinations, metadata=None):
         """
         Estimates the fee for a potential transaction to specified destinations and carrying
