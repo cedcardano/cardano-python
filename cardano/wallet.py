@@ -275,7 +275,7 @@ class Wallet(object):
             allow_withdrawal,
         )
 
-        signedtx = self.backend.sign_tx(unsignedtx['transaction'],passphrase)
+        signedtx = self.backend.sign_tx(self.wid,unsignedtx['transaction'],passphrase)
 
         return self.backend.submit_ext_tx(
             signedtx['transaction']
