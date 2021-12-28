@@ -34,7 +34,7 @@ class JSONWithDecimalEncoder(json.JSONEncoder):
 
 class WalletREST(object):
     base_url = None
-    timeout = 10
+    timeout = 100
 
     ERR2EXCEPTION = {
         403: {
