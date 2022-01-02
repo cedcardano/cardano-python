@@ -285,9 +285,9 @@ class WalletREST(object):
     def transactionsfiltered(self, wid, startdatetime = None, enddatetime = None):
         callstr = "wallets/{:s}/transactions?order=ascending".format(wid)
         if startdatetime:
-            callstr += f"&start={urllib.parse.quote(startdatetime.isoformat()[:-7]+"Z")}"
+            callstr += (f"&start={urllib.parse.quote(startdatetime.isoformat()[:-7])}Z")
         if enddatetime:
-            callstr += f"&end={urllib.parse.quote(enddatetime.isoformat()[:-7]+"Z")}"
+            callstr += (f"&end={urllib.parse.quote(enddatetime.isoformat()[:-7])}Z")
             
         rawreq = self.raw_request(
                 "GET", callstr)
