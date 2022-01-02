@@ -120,6 +120,11 @@ class Wallet(object):
         """
         return self.backend.asset_balances(self.wid)
 
+    #filter by datetime
+    def txsfiltered(self, startdatetime = None, enddatetime = None):
+        return self.backend.transactionsfiltered(self.wid, startdatetime, enddatetime)
+        
+
     def delete(self):
         """
         Deletes the wallet from the backend. It doesn't wipe the funds; the wallet may be restored
