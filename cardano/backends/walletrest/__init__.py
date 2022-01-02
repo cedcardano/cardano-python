@@ -6,6 +6,7 @@ import requests
 import urllib
 from io import BytesIO
 import base64
+from datetime import datetime
 
 from ... import exceptions as main_exceptions
 from ...metadata import Metadata
@@ -270,12 +271,33 @@ class WalletREST(object):
 
     def transactions(self, wid):
         data = {"order": "ascending"}
-        return [
-            self._txdata2tx(txd, addresses=self._addresses_set(wid))
-            for txd in self.raw_request(
+        rawreq = self.raw_request(
                 "GET", "wallets/{:s}/transactions".format(wid), data
             )
+        addrset = self._addresses_set(wid)
+        
+        return [
+            self._txdata2tx(txd, addresses=addrset)
+            for txd in rawreq
         ]
+
+    #timeformat:datetime object
+    def transactionsfiltered(self, wid, startdatetime = None, enddatetime = None):
+        callstr = "wallets/{:s}/transactions?order=ascending".format(wid)
+        if startdatetime:
+            callstr += f"&start={urllib.parse.quote(startdatetime.isoformat()[:-7]+"Z")}"
+        if enddatetime:
+            callstr += f"&end={urllib.parse.quote(enddatetime.isoformat()[:-7]+"Z")}"
+            
+        rawreq = self.raw_request(
+                "GET", callstr)
+        addrset = self._addresses_set(wid)
+        
+        return [
+            self._txdata2tx(txd, addresses=addrset)
+            for txd in rawreq
+        ]        
+     
 
     def transfer(self, wid, destinations, metadata, allow_withdrawal, ttl, passphrase):
         data = {
