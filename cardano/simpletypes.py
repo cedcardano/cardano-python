@@ -11,14 +11,14 @@ Balance.reward.__doc__ = "The staking rewards (interest)"
 
 
 BlockPosition = collections.namedtuple(
-    "BlockPosition", ["epoch", "slot", "absolute_slot", "height"]
+    "BlockPosition", ["epoch", "slot", "absolute_slot", "height", "time"]
 )
 BlockPosition.__doc__ = "Represents block's position within the blockchain"
 BlockPosition.epoch.__doc__ = "Epoch number"
 BlockPosition.slot.__doc__ = "Slot number"
 BlockPosition.absolute_slot.__doc__ = "Absolute slot number"
 BlockPosition.height.__doc__ = "Block number (height of the chain) [optional]"
-
+BlockPosition.time.__doc__ = "Time block was inserted into the chain (str) [optional]"
 
 Epoch = collections.namedtuple("Epoch", ["number", "starts"])
 
