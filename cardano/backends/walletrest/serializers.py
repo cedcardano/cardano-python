@@ -31,6 +31,7 @@ def get_block_position(data):
         data["slot_number"],
         data["absolute_slot_number"],
         get_height(data["height"]) if "height" in data else None,
+        data["time"],
     )
 
 
