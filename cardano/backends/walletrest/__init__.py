@@ -401,9 +401,18 @@ class WalletREST(object):
                 {
                     "address": str(address),
                     "amount": serializers.store_amount(amount),
+                    "assets": [
+                        {
+                            "policy_id": asset.policy_id,
+                            "asset_name": asset.asset_name,
+                            "quantity": asset_amount,
+                        }
+                        for (asset, asset_amount) in assets
+                    ],
                 }
-                for (address, amount) in destinations
+                for (address, amount, assets) in destinations
             ],
+
         }
         if metadata is not None:
             if not isinstance(metadata, Metadata):
