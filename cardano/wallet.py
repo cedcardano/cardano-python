@@ -300,7 +300,11 @@ class Wallet(object):
                     instance od ``dict`` mapping ``int`` keys to values of acceptable types
         :rtype: (``Decimal``, ``Decimal``)
         """
-        return self.backend.estimate_fee(self.wid, destinations, metadata)
+        dests = []
+        for d in destinations:
+            nd = d if len(d) == 3 else (d[0], d[1], [])
+            dests.append(nd)
+        return self.backend.estimate_fee(self.wid, dests, metadata)
 
     def stake_pools(self, stake=None):
         """
