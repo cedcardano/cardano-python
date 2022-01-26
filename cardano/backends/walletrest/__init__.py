@@ -204,10 +204,22 @@ class WalletREST(object):
             aid = AssetID(ast["asset_name"], ast["policy_id"])
             assets[aid] = assets[aid] if aid in assets else {}
             assets[aid]["available"] = ast["quantity"]
-        return {
-            aid: Balance(bal["total"], bal["available"], None)
-            for aid, bal in assets.items()
-        }
+
+        returnArray = {}
+        for aid, bal in assets.items():
+            try:
+                totalBalance = bal["total"]
+            except KeyError:
+                totalBalance = Decimal(0)
+            
+            try:
+                availBalance = bal["available"]
+            except KeyError:
+                availBalance = Decimal(0)
+
+            returnArray[aid] = Balance(totalBalance, availBalance, None)
+
+        return returnArray
 
     def addresses(self, wid):
         adata = self.raw_request("GET", "wallets/{:s}/addresses".format(wid))
