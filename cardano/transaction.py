@@ -160,9 +160,9 @@ class Output(IOBase):
 def validate_txid(txid):
     if not bool(re.compile("^[0-9a-f]{64}$").match(txid)):
         raise ValueError(
-            "Transaction ID must be a 64-character hexadecimal string, not "
-            "'{}'".format(txid)
+            f"Transaction ID must be a 64-character hexadecimal string, not '{txid}'"
         )
+
     return txid
 
 
@@ -253,9 +253,7 @@ class TxFilter(object):
         _src_addr = filterparams.pop("src_addr", None)
         _dest_addr = filterparams.pop("dest_addr", None)
         if len(filterparams) > 0:
-            raise ValueError(
-                "Excessive arguments for payment query: {}".format(filterparams)
-            )
+            raise ValueError(f"Excessive arguments for payment query: {filterparams}")
         self._asks_chain_position = any(
             map(
                 lambda x: x is not None,
@@ -295,16 +293,15 @@ class TxFilter(object):
     def _get_addrset(self, addr):
         if addr is None:
             return set()
+        if isinstance(addr, (str, bytes)):
+            addrs = [addr]
         else:
-            if isinstance(addr, (str, bytes)):
+            try:
+                iter(addr)
+                addrs = addr
+            except TypeError:
                 addrs = [addr]
-            else:
-                try:
-                    iter(addr)
-                    addrs = addr
-                except TypeError:
-                    addrs = [addr]
-            return set(map(address, addrs))
+        return set(map(address, addrs))
 
     def check(self, tx):
         assert (tx.status == "in_ledger" and tx.inserted_at is not None) or (

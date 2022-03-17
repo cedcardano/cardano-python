@@ -61,7 +61,7 @@ def bech32_decode(bech):
     if pos < 1 or pos + 7 > len(bech):
         # Removed the 90 char limitation -- MS
         return (None, None, None)
-    if not all(x in CHARSET for x in bech[pos + 1 :]):
+    if any(x not in CHARSET for x in bech[pos + 1 :]):
         return (None, None, None)
     hrp = bech[:pos]
     data = [CHARSET.find(x) for x in bech[pos + 1 :]]

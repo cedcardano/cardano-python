@@ -53,10 +53,9 @@ class AssetID(object):
             self.asset_name = asset_name
         else:
             raise ValueError(
-                "The asset_name is neither str or bytes but {}".format(
-                    type(self.asset_name)
-                )
+                f"The asset_name is neither str or bytes but {type(self.asset_name)}"
             )
+
         self.policy_id = policy_id
 
     def __repr__(self):

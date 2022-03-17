@@ -40,7 +40,7 @@ def get_stakingstatus(val):
         return True
     if val == "not_delegating":
         return False
-    raise ValueError("Encountered invalid staking status: {}".format(val))
+    raise ValueError(f"Encountered invalid staking status: {val}")
 
 
 def get_epoch(data):
