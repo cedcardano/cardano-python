@@ -16,9 +16,10 @@ class BasicTransactionTests(unittest.TestCase):
             txid="0b048162778e29e98d833d948a3be7f18f9ce8693d7ee407c7d38b6ef2a5a264"
         )
         self.assertEqual(
-            "{}".format(tx),
+            f"{tx}",
             "<Cardano tx: 0b048162778e29e98d833d948a3be7f18f9ce8693d7ee407c7d38b6ef2a5a264>",
         )
+
         self.assertEqual(
             "{:s}".format(tx),
             "<Cardano tx: 0b048162778e29e98d833d948a3be7f18f9ce8693d7ee407c7d38b6ef2a5a264>",

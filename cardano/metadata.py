@@ -69,10 +69,9 @@ class Metadata(dict):
                 Metadata.validate_value(v)
         else:
             raise TypeError(
-                "Metadata values must be of int, str, bytes, bytearray, lists of thereof or another Metadata instances, not {}".format(
-                    str(type(val))
-                )
+                f"Metadata values must be of int, str, bytes, bytearray, lists of thereof or another Metadata instances, not {str(type(val))}"
             )
+
         return val
 
     @staticmethod
@@ -100,7 +99,7 @@ class Metadata(dict):
             }
         # This should never happen
         raise RuntimeError(
-            "Found unserializable value of {} (type {})".format(val, str(type(val)))
+            f"Found unserializable value of {val} (type {str(type(val))})"
         )
 
     def serialize(self):
@@ -127,7 +126,7 @@ class Metadata(dict):
             return i
         elif isinstance(i, Decimal):
             return int(i.quantize(1))
-        raise TypeError("Got int serialized as {} of value {}".format(str(type(i)), i))
+        raise TypeError(f"Got int serialized as {str(type(i))} of value {i}")
 
     @staticmethod
     def deserialize_map(themap):

@@ -198,11 +198,11 @@ class WalletREST(object):
         assets = {}
         for ast in bdata["total"]:
             aid = AssetID(ast["asset_name"], ast["policy_id"])
-            assets[aid] = assets[aid] if aid in assets else {}
+            assets[aid] = assets.get(aid, {})
             assets[aid]["total"] = ast["quantity"]
         for ast in bdata["available"]:
             aid = AssetID(ast["asset_name"], ast["policy_id"])
-            assets[aid] = assets[aid] if aid in assets else {}
+            assets[aid] = assets.get(aid, {})
             assets[aid]["available"] = ast["quantity"]
 
         returnArray = {}
@@ -211,7 +211,7 @@ class WalletREST(object):
                 totalBalance = bal["total"]
             except KeyError:
                 totalBalance = Decimal(0)
-            
+
             try:
                 availBalance = bal["available"]
             except KeyError:
@@ -223,7 +223,7 @@ class WalletREST(object):
 
     def addresses(self, wid):
         adata = self.raw_request("GET", "wallets/{:s}/addresses".format(wid))
-        return [(ad["id"], True if ad["state"] == "used" else False) for ad in adata]
+        return [(ad["id"], ad["state"] == "used") for ad in adata]
 
     def _addresses_set(self, wid):
         return set(map(operator.itemgetter(0), self.addresses(wid)))
@@ -369,20 +369,20 @@ class WalletREST(object):
                 metadata = Metadata(metadata.items())
             data["metadata"] = metadata.serialize()
 
-        # NOTE: the order of the following two requests is important
-        txd = self.raw_request("POST", "wallets/{:s}/transactions-construct".format(wid), data)
         #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
-        return txd
+        return self.raw_request(
+            "POST", "wallets/{:s}/transactions-construct".format(wid), data
+        )
 
     def decode_tx(self, wid, cborstr):
         data = {
             "transaction": cborstr
         }
 
-        # NOTE: the order of the following two requests is important
-        txd = self.raw_request("POST", "wallets/{:s}/transactions-decode".format(wid), data)
         #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
-        return txd
+        return self.raw_request(
+            "POST", "wallets/{:s}/transactions-decode".format(wid), data
+        )
 
     def sign_tx(self, wid, txcbor, passphrase):
         data = {
@@ -390,10 +390,10 @@ class WalletREST(object):
             "transaction": txcbor
         }
 
-        # NOTE: the order of the following two requests is important
-        txd = self.raw_request("POST", "wallets/{:s}/transactions-sign".format(wid), data)
         #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
-        return txd
+        return self.raw_request(
+            "POST", "wallets/{:s}/transactions-sign".format(wid), data
+        )
 
 #def octet_request(self, method, path, bufferblob)
     def submit_ext_tx(self, b64str):
@@ -401,10 +401,8 @@ class WalletREST(object):
         bytesstring = base64.b64decode(b64str)
 
 
-        # NOTE: the order of the following two requests is important
-        txd = self.octet_request("POST", "proxy/transactions", bytesstring)
         #return self._txdata2tx(txd, addresses=self._addresses_set(wid))
-        return txd
+        return self.octet_request("POST", "proxy/transactions", bytesstring)
     
 
     def estimate_fee(self, wid, destinations, metadata):

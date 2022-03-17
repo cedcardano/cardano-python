@@ -23,7 +23,7 @@ def address(addr, wallet=None):
     elif addr.startswith("Ae2"):
         AddressClass = IcarusAddress
     else:
-        raise ValueError("String {} is not a valid Cardano address".format(addr))
+        raise ValueError(f"String {addr} is not a valid Cardano address")
     return AddressClass(addr, wallet=wallet)
 
 
